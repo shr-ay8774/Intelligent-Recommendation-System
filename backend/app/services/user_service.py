@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.models.user import User
 from app.schemas.user_schema import UserCreate
+from app.auth.password import hash_password
 
 
 def create_user(db: Session, user: UserCreate):
@@ -21,7 +22,7 @@ def create_user(db: Session, user: UserCreate):
     new_user = User(
         full_name=user.full_name,
         email=user.email,
-        password=user.password,
+        password=hash_password(user.password),
         skill_level=user.skill_level,
         interests=user.interests
     )
