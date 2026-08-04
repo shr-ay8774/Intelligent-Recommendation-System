@@ -1,16 +1,19 @@
 from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.models.user import User
-from app.schemas.auth_schema import LoginRequest
 from app.auth.password import verify_password
 from app.auth.jwt_handler import create_access_token
 
 
-def login_user(db: Session, login: LoginRequest):
+def login_user(
+    db: Session,
+    form_data: OAuth2PasswordRequestForm
+):
 
     user = db.query(User).filter(
-        User.email == login.email
+        User.email == form_data.username
     ).first()
 
     if user is None:
@@ -19,7 +22,10 @@ def login_user(db: Session, login: LoginRequest):
             detail="Invalid email or password"
         )
 
-    if not verify_password(login.password, user.password):
+    if not verify_password(
+        form_data.password,
+        user.password
+    ):
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password"
